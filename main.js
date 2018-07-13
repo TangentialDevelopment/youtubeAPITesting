@@ -66,3 +66,10 @@ function handleAuthClick() {
 function handleSignoutClick() {
   gapi.auth2.getAuthInstance().signOut();
 }
+
+//get channel from api
+function getChannel(chennel) {
+  gapi.client.youtube.channels.list({
+    part: 'snippet,contentDetails,statistics'
+  })
+}
