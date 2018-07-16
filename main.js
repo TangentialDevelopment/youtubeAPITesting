@@ -1,6 +1,8 @@
 //Options
-const CLIENT_ID = '900311573827-5befoevsg4j2em6feuamume960dh2s0k.apps.googleusercontent.com';
-const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest'];
+const CLIENT_ID = 'YOUR_CLIENT_ID';
+const DISCOVERY_DOCS = [
+  'https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest'
+];
 const SCOPES = 'https://www.googleapis.com/auth/youtube.readonly';
 
 const authorizeButton = document.getElementById('authorize-button');
@@ -35,7 +37,7 @@ function initClient() {
       scope: SCOPES
     })
     .then(() => {
-      // Listen for sign in state changes
+      //Listen for sign in state changes
       gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
       // Handle initial sign in state
       updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
@@ -63,6 +65,7 @@ function updateSigninStatus(isSignedIn) {
 function handleAuthClick() {
   gapi.auth2.getAuthInstance().signIn();
 }
+
 function handleSignoutClick() {
   gapi.auth2.getAuthInstance().signOut();
 }
@@ -72,32 +75,43 @@ function showChannelData(data) {
   channelData.innerHTML = data;
 }
 
-//get channel from api
+//Get channel from API
 function getChannel(channel) {
-  gapi.client.youtube.channels.list({
-    part: 'snippet,contentDetails,statistics',
-    forUsername: channel
-  }) .then(response => {
-    console.log(response);
-    const channel = response.result.items[0];
+  gapi.client.youtube.channels
+    .list({
+      part: 'snippet,contentDetails,statistics',
+      forUsername: channel
+    })
+    .then(response => {
+      console.log(response);
+      const channel = response.result.items[0];
 
-    const output = `
-      <ul class="collection">
-        <li class="collection-item">Title: ${channel.snippet.title}</li>
-        <li class="collection-item">ID: ${channel.id}</li>
-        <li class="collection-item">Subs: ${numberWithCommas(channel.statistics.subscriberCount)}</li>
-        <li class="collection-item">Views: ${numberWithCommas(channel.statistics.viewCount)}</li>
-        <li class="collection-item">Videos: ${numberWithCommas(channel.statistics.videoCount)}</li>
-      </ul>
-      <p>${channel.snippet.description}</p>
-      <hr>
-      <a class="btn grey darken-2" target="_blank" href="https://youtube.com/${channel.snippet.customUrl}">Visit Channel</a>
-    `;
-    showChannelData(output);
+      const output = `
+        <ul class="collection">
+          <li class="collection-item">Title: ${channel.snippet.title}</li>
+          <li class="collection-item">ID: ${channel.id}</li>
+          <li class="collection-item">Subscribers: ${numberWithCommas(
+            channel.statistics.subscriberCount
+          )}</li>
+          <li class="collection-item">Views: ${numberWithCommas(
+            channel.statistics.viewCount
+          )}</li>
+          <li class="collection-item">Videos: ${numberWithCommas(
+            channel.statistics.videoCount
+          )}</li>
+        </ul>
+        <p>${channel.snippet.description}</p>
+        <hr>
+        <a class="btn grey darken-2" target="_blank" href="https://youtube.com/${
+          channel.snippet.customUrl
+        }">Visit Channel</a>
+      `;
+      showChannelData(output);
 
-    const playlistId = channel.contentDetails.relatedPlaylist.uploads;
-    requestVideoPlaylist(playlistId);
-  }) .catch(err => alert('No channel by that name'));
+      const playlistId = channel.contentDetails.relatedPlaylists.uploads;
+      requestVideoPlaylist(playlistId);
+    })
+    .catch(err => alert('No Channel By That Name'));
 }
 
 function numberWithCommas(x) {
@@ -118,6 +132,7 @@ function requestVideoPlaylist(playlistId) {
     const playListItems = response.result.items;
     if (playListItems) {
       let output = '<br><h4 class="center-align">Latest Videos</h4>';
+
       playListItems.forEach(item => {
         const videoId = item.snippet.resourceId.videoId;
 
@@ -127,7 +142,7 @@ function requestVideoPlaylist(playlistId) {
           </div>
         `;
       });
-      
+
       videoContainer.innerHTML = output;
     } else {
       videoContainer.innerHTML = 'No Uploaded Videos';
