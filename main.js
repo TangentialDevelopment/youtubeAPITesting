@@ -101,7 +101,7 @@ function getChannel(channel) {
 }
 
 function numberWithCommas(x) {
-  return x.toString().replace(/\B(?=(\d{3}))+/g, ",");
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 function requestVideoPlaylist(playlistId) {
@@ -116,22 +116,21 @@ function requestVideoPlaylist(playlistId) {
   request.execute(response => {
     console.log(response);
     const playListItems = response.result.items;
-    if(playListItems) {
-      let output = '<h4 class="align-center">Latest videos</h4>'
-
+    if (playListItems) {
+      let output = '<br><h4 class="center-align">Latest Videos</h4>';
       playListItems.forEach(item => {
         const videoId = item.snippet.resourceId.videoId;
 
         output += `
           <div class="col s3">
-            <iframe width="100%" height="auto" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          <iframe width="100%" height="auto" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
           </div>
-        `
-
-        videoContainer.innerHTML = output;
+        `;
       });
+      
+      videoContainer.innerHTML = output;
     } else {
-      videoContainer.innerHTML = 'No uploaded videos';
+      videoContainer.innerHTML = 'No Uploaded Videos';
     }
   });
 }
