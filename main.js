@@ -100,20 +100,38 @@ function getChannel(channel) {
   }) .catch(err => alert('No channel by that name'));
 }
 
-function numberWithCommas (x) {
+function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3}))+/g, ",");
 }
 
-function requestionVideoPlaylist(playlistId) {
+function requestVideoPlaylist(playlistId) {
   const requestOptions = {
     playlistId: playlistId,
     part: 'snippet',
     maxResults: 10
-  }
+  };
 
   const request = gapi.client.youtube.playlistItems.list(requestOptions);
 
   request.execute(response => {
     console.log(response);
+    const playListItems = response.result.items;
+    if(playListItems) {
+      let output = '<h4 class="align-center">Latest videos</h4>'
+
+      playListItems.forEach(item => {
+        const videoId = item.snippet.resourceId.videoId;
+
+        output += `
+          <div class="col s3">
+            <iframe width="100%" height="auto" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+        `
+
+        videoContainer.innerHTML = output;
+      });
+    } else {
+      videoContainer.innerHTML = 'No uploaded videos';
+    }
   });
 }
