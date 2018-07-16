@@ -13,13 +13,13 @@ const videoContainer = document.getElementById('video-container');
 const defaultChannel = 'techguyweb';
 
 //Form submit and change channel
-// channelForm.addEventListener('submit', e => {
-//   e.preventDefault();
-//
-//   const channel = channelInput.value;
-//
-//   getChannel(channel);
-// });
+channelForm.addEventListener('submit', e => {
+  e.preventDefault();
+
+  const channel = channelInput.value;
+
+  getChannel(channel);
+});
 
 //Load auth2 library
 function handleClientLoad() {
@@ -67,12 +67,53 @@ function handleSignoutClick() {
   gapi.auth2.getAuthInstance().signOut();
 }
 
+function showChannelData(data) {
+  const channelData = document.getElementById('channel-data');
+  channelData.innerHTML = data;
+}
+
 //get channel from api
 function getChannel(channel) {
   gapi.client.youtube.channels.list({
     part: 'snippet,contentDetails,statistics',
     forUsername: channel
   }) .then(response => {
-    console.log(response)
-  }) .catch(err => alert('No channel by that name'))
+    console.log(response);
+    const channel = response.result.items[0];
+
+    const output = `
+      <ul class="collection">
+        <li class="collection-item">Title: ${channel.snippet.title}</li>
+        <li class="collection-item">ID: ${channel.id}</li>
+        <li class="collection-item">Subs: ${numberWithCommas(channel.statistics.subscriberCount)}</li>
+        <li class="collection-item">Views: ${numberWithCommas(channel.statistics.viewCount)}</li>
+        <li class="collection-item">Videos: ${numberWithCommas(channel.statistics.videoCount)}</li>
+      </ul>
+      <p>${channel.snippet.description}</p>
+      <hr>
+      <a class="btn grey darken-2" target="_blank" href="https://youtube.com/${channel.snippet.customUrl}">Visit Channel</a>
+    `;
+    showChannelData(output);
+
+    const playlistId = channel.contentDetails.relatedPlaylist.uploads;
+    requestVideoPlaylist(playlistId);
+  }) .catch(err => alert('No channel by that name'));
+}
+
+function numberWithCommas = (x) {
+  return x.toString().replace(/\B(?=(\d{3}))+/g, ",");
+}
+
+function requestionVideoPlaylist(playlistId) {
+  const requestOptions = {
+    playlistId: playlistId,
+    part: 'snippet',
+    maxResults: 10
+  }
+
+  const request = gapi.client.youtube.playlistItems.list(requestOptions);
+
+  request.execute(response => {
+    console.log(response);
+  });
 }
